@@ -51,6 +51,11 @@ def write_entry(path):
         os.makedirs(directory, exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as handle:
         handle.write(text)
+    # Verify the write: what landed on disk must be exactly the line,
+    # so a partial or mangled write can never pass silently.
+    with open(path, "rb") as handle:
+        if handle.read() != text.encode("utf-8"):
+            raise OSError("verification failed: %s does not hold the line" % path)
     return text
 
 
